@@ -4,10 +4,12 @@
   padding: 2rem;
   text-align: center;
 }
+
 .App {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  width: 1200px;
 }
 
 .information {
@@ -28,33 +30,47 @@ input {
 
 }
 
- button {
+button {
   width: 320px;
   height: 50px;
   margin-top: 15px;
-} 
+}
 
- button:hover {
+button:hover {
   cursor: pointer;
 }
 
 .employees {
   display: flex;
   align-items: center;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
   width: 100%;
 }
 
 .employee {
-  width: 700px;
+  width: 46%;
   height: auto;
   border: 1px solid black;
   margin: 10px;
   display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: 10px;
   font-family: 'Courier New', Courier, monospace;
 }
 
+.employee div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  width: 80%;
+}
 .employee h3 {
   margin: 20px;
+}
+
+.hidden {
+  display: none;
 }

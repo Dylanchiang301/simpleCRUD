@@ -1,6 +1,7 @@
 import "./App.css";
 import { useState } from "react";
 import Axios from "axios";
+import DataCard from "./DataCard";
 
 function App() {
   const [name, setName] = useState("");
@@ -8,10 +9,15 @@ function App() {
   const [country, setCountry] = useState("");
   const [position, setPosition] = useState("");
   const [wage, setWage] = useState(0);
-
   const [newWage, setNewWage] = useState(0);
 
   const [employeeList, setEmployeeList] = useState([]);
+
+  const getEmployees = () => {
+    Axios.get("http://localhost:4001/employees").then((response) => {
+      setEmployeeList(response.data);
+    });
+  };
 
   const addEmployee = () => {
     Axios.post("http://localhost:4001/create", {
@@ -20,57 +26,32 @@ function App() {
       country: country,
       position: position,
       wage: wage,
-    }).then(() => {
-      setEmployeeList([
-        ...employeeList,
-        {
-          name: name,
-          age: age,
-          country: country,
-          position: position,
-          wage: wage,
-        },
-      ]);
-    });
-  };
-
-  const getEmployees = () => {
-    Axios.get("http://localhost:4001/employees").then((response) => {
-      setEmployeeList(response.data);
+    }).then((response) => {
+      if (response.status === 200 || response.status === 201) {
+        getEmployees()
+      }
     });
   };
 
   const updateEmployeeWage = (id) => {
+    if (!id) return
     Axios.put("http://localhost:4001/update", { wage: newWage, id: id }).then(
       // eslint-disable-next-line no-unused-vars
       (response) => {
-        setEmployeeList(
-          employeeList.map((val) => {
-            return val.id == id
-              ? {
-                  id: val.id,
-                  name: val.name,
-                  country: val.country,
-                  age: val.age,
-                  position: val.position,
-                  wage: newWage,
-                }
-              : val;
-          })
-        );
+        if (response.status === 200 || response.status === 201) getEmployees()
       }
     );
   };
 
   const deleteEmployee = (id) => {
-    // eslint-disable-next-line no-unused-vars
-    Axios.delete(`http://localhost:4001/delete/${id}`).then((response) => {
-      setEmployeeList(
-        employeeList.filter((val) => {
-          return val.id != id;
-        })
-      );
-    });
+    const isConfirmed = window.confirm('確定要刪除嗎？');
+    if (isConfirmed) {
+      if (!id) return
+      Axios.delete(`http://localhost:4001/delete/${id}`).then((response) => {
+        if (response.status === 200 || response.status === 201) getEmployees()
+
+      });
+    }
   };
 
   return (
@@ -112,49 +93,18 @@ function App() {
           }}
         />
         <button onClick={addEmployee}>Add Employee</button>
+        <button onClick={getEmployees}>Show Employees</button>
       </div>
       <div className="employees">
-        <button onClick={getEmployees}>Show Employees</button>
 
-        {employeeList.map((val) => {
-          return (
-            // eslint-disable-next-line react/jsx-key
-            <div className="employee">
-              <div>
-                <h3>Name: {val.name}</h3>
-                <h3>Age: {val.age}</h3>
-                <h3>Country: {val.country}</h3>
-                <h3>Position: {val.position}</h3>
-                <h3>Wage: {val.wage}</h3>
-              </div>
-              <div>
-                <input
-                  type="text"
-                  placeholder="2000..."
-                  onChange={(event) => {
-                    setNewWage(event.target.value);
-                  }}
-                />
-                <button
-                  onClick={() => {
-                    updateEmployeeWage(val.id);
-                  }}
-                >
-                  {" "}
-                  Update
-                </button>
-
-                <button
-                  onClick={() => {
-                    deleteEmployee(val.id);
-                  }}
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          );
-        })}
+        {employeeList.map(val => (
+          <DataCard
+            key={val.id}
+            val={val}
+            setNewWage={setNewWage}
+            updateEmployeeWage={updateEmployeeWage}
+            deleteEmployee={deleteEmployee}
+          />))}
       </div>
     </div>
   );
